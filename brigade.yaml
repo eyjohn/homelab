@@ -1,0 +1,11 @@
+brigade-github-app:
+  enabled: true
+  service:
+    type: NodePort
+  ingress:
+    enabled: false
+  #   hosts:
+  #     - brigade-github-app.evkube.evdev.me
+  #   annotations:
+  #     kubernetes.io/ingress.global-static-ip-name: "evkube-static-ip"
+  

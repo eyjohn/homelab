@@ -48,5 +48,7 @@ helm install -n brigade brigade/brigade --set rbac.enabled=true --namespace=brig
 
 - rbac permissioning needs to be enabled
 - chart will be deployed with the name `brigade` in namespace `brigade`
+- before running `brig` make sure to `export BRIGADE_NAMESPACE=brigade`
+
 
 
