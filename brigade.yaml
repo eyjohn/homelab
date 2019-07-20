@@ -13,3 +13,5 @@ brigade-github-app:
     - hosts:
       - brigade-github-app.evkube.evdev.me
       secretName: brigade-github-app-tls
+  github:
+    appID: 36087

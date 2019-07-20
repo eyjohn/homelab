@@ -49,7 +49,7 @@ helm repo add brigade https://brigadecore.github.io/charts
 Install Brigade on cluster
 
 ```sh
-helm install -n brigade brigade/brigade --namespace=brigade -f brigade.yaml
+helm install -n brigade brigade/brigade --namespace=brigade -f brigade.yaml -f $PRIV/brigade-github-key.yaml
 ```
 
 - rbac permissioning needs to be enabled
