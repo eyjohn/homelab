@@ -32,6 +32,12 @@ gcloud container clusters get-credentials evkube
 helm init --service-account tiller
 ```
 
+### Install Nginx Ingress
+
+TODO
+
+### Install Cert Manager
+
 ### Install Brigade
 
 Add Brigade to local repo first
@@ -43,12 +49,9 @@ helm repo add brigade https://brigadecore.github.io/charts
 Install Brigade on cluster
 
 ```sh
-helm install -n brigade brigade/brigade --set rbac.enabled=true --namespace=brigade
+helm install -n brigade brigade/brigade --namespace=brigade -f brigade.yaml
 ```
 
 - rbac permissioning needs to be enabled
 - chart will be deployed with the name `brigade` in namespace `brigade`
 - before running `brig` make sure to `export BRIGADE_NAMESPACE=brigade`
-
-
-

@@ -3,9 +3,13 @@ brigade-github-app:
   service:
     type: NodePort
   ingress:
-    enabled: false
-  #   hosts:
-  #     - brigade-github-app.evkube.evdev.me
-  #   annotations:
-  #     kubernetes.io/ingress.global-static-ip-name: "evkube-static-ip"
-  
+    hosts:
+      - brigade-github-app.evkube.evdev.me
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      certmanager.k8s.io/cluster-issuer: "letsencrypt-prod"
+      certmanager.k8s.io/acme-challenge-type: http01
+    tls:
+    - hosts:
+      - brigade-github-app.evkube.evdev.me
+      secretName: brigade-github-app-tls
