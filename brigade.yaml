@@ -15,3 +15,6 @@ brigade-github-app:
       secretName: brigade-github-app-tls
   github:
     appID: 36087
+worker:
+  defaultBuildStorageClass: standard
+  defaultCacheStorageClass: standard
