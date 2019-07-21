@@ -3,4 +3,4 @@ controller:
   daemonset:
     useHostPort: true
   service:
-    enabled: false
+    type: NodePort

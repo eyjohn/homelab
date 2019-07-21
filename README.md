@@ -10,10 +10,14 @@ These instructions are for Kubernetes hosted on Google Cloud Platform.
 ### Create the cluster
 
 ```sh
+# Small 
+gcloud container clusters create evkube --num-nodes 2 --disk-size 15 -m g1-small
+
+# Micro
 gcloud container clusters create evkube --num-nodes 3 --disk-size 10 -m f1-micro --no-enable-cloud-logging --no-enable-cloud-monitoring
 ```
 
-- 3 nodes is the minimum configuration permittable for f1-micro instances
+- 3 nodes is the minimum configuration permissible for f1-micro instances
 - 30GB disk is free-tier, hence 10 are per node
 - f1-micro instances have only 600mb RAM, not enough for monitoring/logging bundles
 
@@ -26,17 +30,45 @@ gcloud container clusters get-credentials evkube
 
 ### Install Helm
 
+Helm is used for installing charts (groups of resources).
+
 [Get Helm first](https://github.com/helm/helm/releases)
 
 ```sh
+kubectl apply -f helm/tiller-rbac-config.yaml
 helm init --service-account tiller
 ```
 
-### Install Nginx Ingress
-
-TODO
+Check that it is running:
+```sh
+helm version
+```
 
 ### Install Cert Manager
+
+Use the cert-manager to generate free "lets-encrypt" SSL certificates.
+
+```sh
+kubectl apply -f cert-manager/00-crds.yaml
+kubectl apply -f cert-manager/production-issuer.yaml
+```
+
+
+### Install Nginx Ingress
+
+Rather than rely on external (expensive) load balancers, use nginx powered ingress to handle inbound traffic directly on nodes.
+
+The current configuration uses `hostPort` to listen for incoming connection, a firewall port should be opened.
+
+```sh
+gcloud compute firewall-rules create nginx-ingress --allow tcp:80,tcp:443
+```
+
+Install nginx-ingress chart
+
+```sh
+helm install -n nginx-ingress --namespace nginx-ingress stable/nginx-ingress -f nginx-ingress/values.yaml 
+```
 
 ### Install Brigade
 
