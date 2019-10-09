@@ -19,7 +19,7 @@ gcloud container clusters create evkube --num-nodes 3 --disk-size 10 -m f1-micro
 
 - 3 nodes is the minimum configuration permissible for f1-micro instances
 - 30GB disk is free-tier, hence 10 are per node
-- f1-micro instances have only 600mb RAM, not enough for monitoring/logging bundles
+- f1-micro instances have only 600mb RAM, not enough for monitoring/logging bundles, even for g1-small this could be a problem
 
 Total Estimated Cost: USD 7.66 per 1 month (US-East July 2019)
 
