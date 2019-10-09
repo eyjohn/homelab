@@ -16,5 +16,5 @@ brigade-github-app:
   github:
     appID: 36087
 worker:
-  defaultBuildStorageClass: standard
-  defaultCacheStorageClass: standard
+  defaultBuildStorageClass: nfs
+  defaultCacheStorageClass: nfs

@@ -48,11 +48,16 @@ helm version
 
 Use the cert-manager to generate free "lets-encrypt" SSL certificates.
 
+
+Configure entity types and a default production issuer (cluster-wide)
 ```sh
 kubectl apply -f cert-manager/00-crds.yaml
 kubectl apply -f cert-manager/production-issuer.yaml
 ```
 
+```sh
+helm install -n cert-manager --namespace cert-manager stable/cert-manager
+```
 
 ### Install Nginx Ingress
 
@@ -68,6 +73,16 @@ Install nginx-ingress chart
 
 ```sh
 helm install -n nginx-ingress --namespace nginx-ingress stable/nginx-ingress -f nginx-ingress/values.yaml 
+```
+
+### Install NFS storage provisioner
+
+At the time of writing, GCE did not support ReadWriteMany ([see table](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes)).
+
+This installs a NFS based storage provisioner (probably cheaper too).
+
+```sh
+helm install -n nfs-server-provisioner --namespace nfs-server-provisioner  stable/nfs-server-provisioner
 ```
 
 ### Install Brigade
