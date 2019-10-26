@@ -51,7 +51,9 @@ Use the cert-manager to generate free "lets-encrypt" SSL certificates.
 
 Configure entity types and a default production issuer (cluster-wide)
 ```sh
-kubectl apply -f cert-manager/00-crds.yaml
+kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml
+# or local copy:
+# kubectl apply -f cert-manager/00-crds.yaml
 kubectl apply -f cert-manager/production-issuer.yaml
 ```
 
