@@ -89,15 +89,11 @@ helm install -n nfs-server-provisioner --namespace nfs-server-provisioner  stabl
 
 This brigade setup integrates with GitHub using the brigade-github-app chart. This requires configuration on GitHub and a publicly accessible URL. See [brigade-github-app documentation](https://github.com/brigadecore/brigade-github-app) for more information for the complete setup. The rest of this section describes only the kubernetes cluster setup.
 
-Add Brigade to local repo first
+Add Brigade to local repo and install Brigade on cluster
 
 ```sh
 helm repo add brigade https://brigadecore.github.io/charts
-```
-
-Install Brigade on cluster
-
-```sh
+helm repo update
 helm install -n brigade brigade/brigade --namespace=brigade -f brigade/values.yaml -f $PRIV/brigade/brigade-github-key.yaml
 ```
 
