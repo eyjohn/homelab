@@ -10,18 +10,14 @@ These instructions are for Kubernetes hosted on Google Cloud Platform.
 ### Create the cluster
 
 ```sh
-# Small 
-gcloud container clusters create evkube --num-nodes 2 --disk-size 15 -m g1-small
-
-# Micro
-gcloud container clusters create evkube --num-nodes 3 --disk-size 10 -m f1-micro --no-enable-cloud-logging --no-enable-cloud-monitoring
+gcloud container clusters create evkube --num-nodes 1 --disk-size 15 -m g1-small --no-enable-cloud-logging --no-enable-cloud-monitoring
 ```
 
-- 3 nodes is the minimum configuration permissible for f1-micro instances
-- 30GB disk is free-tier, hence 10 are per node
-- f1-micro instances have only 600mb RAM, not enough for monitoring/logging bundles, even for g1-small this could be a problem
+- Micro instance was unusable
+- 30GB disk is free-tier, chose 15GB incase incase I want two nodes
+- Not enough for monitoring/logging bundles even for g1-small
 
-Total Estimated Cost: USD 7.66 per 1 month (US-East July 2019)
+Total Estimated Cost: USD 14.40 per 1 month (US-East July 2019)
 
 Once created fetch credentials for use in kubectl/helm.
 ```sh
@@ -58,7 +54,9 @@ kubectl apply -f cert-manager/production-issuer.yaml
 ```
 
 ```sh
-helm install -n cert-manager --namespace cert-manager stable/cert-manager
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm install -n cert-manager --namespace cert-manager jetstack/cert-manager
 ```
 
 ### Install Nginx Ingress
