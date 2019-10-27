@@ -104,7 +104,7 @@ helm install -n brigade brigade/brigade --namespace=brigade -f brigade/values.ya
 
 Before running `brig` make sure to `export BRIGADE_NAMESPACE=brigade`.
 
-The `brig` tool can be foud [here](https://github.com/brigadecore/brigade/tree/master/brig).
+The `brig` tool can be found [here](https://github.com/brigadecore/brigade/tree/master/brig).
 
 To create a new project:
 ```sh
