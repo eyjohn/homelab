@@ -7,8 +7,7 @@ brigade-github-app:
       - brigade-github-app.evkube.evdev.me
     annotations:
       kubernetes.io/ingress.class: "nginx"
-      certmanager.k8s.io/cluster-issuer: "letsencrypt-prod"
-      certmanager.k8s.io/acme-challenge-type: http01
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
     tls:
     - hosts:
       - brigade-github-app.evkube.evdev.me
