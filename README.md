@@ -28,38 +28,39 @@ gcloud container clusters get-credentials evkube
 
 Helm is used for installing charts (groups of resources).
 
-[Get Helm first](https://github.com/helm/helm/releases)
+[Get Helm](https://github.com/helm/helm/releases)
 
-```sh
-kubectl apply -f helm/tiller-rbac-config.yaml
-helm init --service-account tiller
-```
-
-Check that it is running:
-```sh
-helm version
-```
+As of version 3, helm no longer requires a service installed on the kubernetes cluster itself.
 
 ### Install Cert Manager
 
 Use the cert-manager to generate free "lets-encrypt" SSL certificates.
 
-
 Configure entity types and a default production issuer (cluster-wide)
 ```sh
-kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml
+kubectl create namespace cert-manager
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager-legacy.crds.yaml
 kubectl apply -f cert-manager/production-issuer.yaml
 ```
 
 ```sh
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
-helm install -n cert-manager --namespace cert-manager jetstack/cert-manager
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --version v0.15.0
 ```
 
 ### Install Nginx Ingress
 
 Rather than rely on external (expensive) load balancers, use nginx powered ingress to handle inbound traffic directly on nodes.
+
+NOTE: There are two version of an Nginx powered ingress:
+- nginx-ingress - The official Nginx project managed version
+- ingress-nginx - The community managed project
+
+Following an cluster upgrade to `v1.14.10-gke.36`, the official version stopped working and hence this cluster now uses the community.
 
 The current configuration uses `hostPort` to listen for incoming connection, a firewall port should be opened.
 
@@ -70,7 +71,13 @@ gcloud compute firewall-rules create nginx-ingress --allow tcp:80,tcp:443
 Install nginx-ingress chart
 
 ```sh
-helm install -n nginx-ingress --namespace nginx-ingress stable/nginx-ingress -f nginx-ingress/values.yaml 
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+kubectl create namespace ingress-nginx
+helm install \
+  ingress-nginx ingress-nginx/ingress-nginx \
+  -n ingress-nginx \
+  -f ingress-nginx/values.yaml
 ```
 
 ### Install NFS storage provisioner
