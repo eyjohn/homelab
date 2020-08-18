@@ -1,19 +1,34 @@
+kashti:
+  enabled: true
+  service:
+    type: NodePort
+  ingress:
+    enabled: true
+    hosts:
+      - kashti.brigade.homelab.evdev.me
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    tls:
+    - hosts:
+      - kashti.brigade.homelab.evdev.me
+      secretName: brigade-kashti-tls
 brigade-github-app:
   enabled: true
   service:
     type: NodePort
   ingress:
     hosts:
-      - brigade-github-app.evkube.evdev.me
+      - github-app.brigade.homelab.evdev.me
     annotations:
       kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
     tls:
     - hosts:
-      - brigade-github-app.evkube.evdev.me
+      - github-app.brigade.homelab.evdev.me
       secretName: brigade-github-app-tls
   github:
-    appID: 36087
+    appID: 77268
 worker:
-  defaultBuildStorageClass: nfs
-  defaultCacheStorageClass: nfs
+  defaultBuildStorageClass: microk8s-hostpath
+  defaultCacheStorageClass: microk8s-hostpath

@@ -1,28 +1,65 @@
-# evkube
-EvKube Kubernetes Cluster Configurations (non-sensitive)
+# homelab
+Evgeny's HomeLab Kubernetes Cluster Configurations (non-sensitive)
 
-This repository contains all the instructions, configurations and scripts for configuring Evgeny's Kubernetes cluster. Any sensitive (secrets) are not stored in repository however may be referenced in the instructions.
+This repository contains all the instructions, configurations and scripts for configuring Evgeny's HomeLab Kubernetes cluster. Any sensitive (secrets) are not stored in repository however may be referenced in the instructions.
 
-## Creating the Kubernetes cluster
+## Install Kubernetes Cluster
 
-These instructions are for Kubernetes hosted on Google Cloud Platform.
+### Install Ubuntu Server OS
 
-### Create the cluster
+Grab an image, stick on a USB, and follow install instructions.
+
+Enable ssh, don't install microk8s, already done in install script.
+
+### Deploy and run install script
+
+Clone this repo onto the target cluster
 
 ```sh
-gcloud container clusters create evkube --num-nodes 1 --disk-size 15 -m g1-small --no-enable-cloud-logging --no-enable-cloud-monitoring
+git clone https://github.com/eyjohn/homelab
+cd homelab
 ```
 
-- Micro instance was unusable
-- 30GB disk is free-tier, chose 15GB incase incase I want two nodes
-- Not enough for monitoring/logging bundles even for g1-small
+Run the `install.sh` script which will:
 
-Total Estimated Cost: USD 14.40 per 1 month (US-East July 2019)
+- Laptop lid-closing fix
+- Install microk8s and enable user access
+- Enable useful microk8s modules
 
-Once created fetch credentials for use in kubectl/helm.
+## Setup connectivity
+
+### Enable router/firewall access
+
+Since this is running on my LAN, the router needs 
+- Port-forward for direct ports (e.g. 80, 443)
+
+### Acquire cluster connection config
+
+For easier (remote) control using `kubectl` and `helm`, fetch the connection details for kubectl using. The setup in this runbook exposes the kubernetes api-service publicly with a valid certificate, however local access can be received using a local network configuration.
+
+#### Generate local config
+
+This config will only work on the local network.
+
 ```sh
-gcloud container clusters get-credentials evkube
+ssh homelab.lan /snap/bin/microk8s config > ~/.kube/microk8s.config
 ```
+
+#### Generate remote config
+
+This config will work remotely (and securely).
+
+```sh
+ssh homelab.lan /snap/bin/microk8s config -l | grep -v certificate-authority-data | sed 's/: microk8s/: homelab/g;s/127\.0\.0\.1:16443/kubernetes.homelab.evdev.me/g' > ~/.kube/homelab.config
+```
+
+#### Validate connectivity
+
+```sh
+kubectl get nodes
+```
+
+## Configure Kubernetes Cluster
 
 ### Install Helm
 
@@ -32,63 +69,13 @@ Helm is used for installing charts (groups of resources).
 
 As of version 3, helm no longer requires a service installed on the kubernetes cluster itself.
 
-### Install Cert Manager
+### Run configure script
 
-Use the cert-manager to generate free "lets-encrypt" SSL certificates.
+The `configure.sh` script can be run either on the cluster itself, or remotely as long as kubectl can access the cluster. This script will
 
-Configure entity types and a default production issuer (cluster-wide)
-```sh
-kubectl create namespace cert-manager
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager-legacy.crds.yaml
-kubectl apply -f cert-manager/production-issuer.yaml
-```
-
-```sh
-helm repo add jetstack https://charts.jetstack.io
-helm repo update
-helm install \
-  cert-manager jetstack/cert-manager \
-  --namespace cert-manager \
-  --version v0.15.0
-```
-
-### Install Nginx Ingress
-
-Rather than rely on external (expensive) load balancers, use nginx powered ingress to handle inbound traffic directly on nodes.
-
-NOTE: There are two version of an Nginx powered ingress:
-- nginx-ingress - The official Nginx project managed version
-- ingress-nginx - The community managed project
-
-Following an cluster upgrade to `v1.14.10-gke.36`, the official version stopped working and hence this cluster now uses the community.
-
-The current configuration uses `hostPort` to listen for incoming connection, a firewall port should be opened.
-
-```sh
-gcloud compute firewall-rules create nginx-ingress --allow tcp:80,tcp:443
-```
-
-Install nginx-ingress chart
-
-```sh
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-kubectl create namespace ingress-nginx
-helm install \
-  ingress-nginx ingress-nginx/ingress-nginx \
-  -n ingress-nginx \
-  -f ingress-nginx/values.yaml
-```
-
-### Install NFS storage provisioner
-
-At the time of writing, GCE did not support ReadWriteMany ([see table](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes)).
-
-This installs a NFS based storage provisioner (probably cheaper too).
-
-```sh
-helm install -n nfs-server-provisioner --namespace nfs-server-provisioner  stable/nfs-server-provisioner
-```
+- Install and Configure cert-manager
+- Install ingress-nginx
+- Apply local ingress configurations (for router http, kubernetes end-point and dashboard)
 
 ### Install Brigade
 
@@ -97,9 +84,10 @@ This brigade setup integrates with GitHub using the brigade-github-app chart. Th
 Add Brigade to local repo and install Brigade on cluster
 
 ```sh
+kubectl create namespace brigade
 helm repo add brigade https://brigadecore.github.io/charts
 helm repo update
-helm install -n brigade brigade/brigade --namespace=brigade -f brigade/values.yaml -f $PRIV/brigade/brigade-github-key.yaml
+helm install brigade brigade/brigade --namespace=brigade -f brigade/values.yaml -f $PRIV/brigade/brigade-github-key.yaml
 ```
 
 - rbac permissioning needs to be enabled
